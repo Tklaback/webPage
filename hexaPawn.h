@@ -1,5 +1,5 @@
-#ifndef SANDBOX_H
-#define SANDBOX_H
+#ifndef HEXAPAWN_H
+#define HEXAPAWN_H
 #include <iostream>
 #include <sstream>
 #include <vector>

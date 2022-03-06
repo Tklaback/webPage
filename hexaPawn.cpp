@@ -1,8 +1,7 @@
 #include <iostream>
 #include <stdlib.h>
-#include "sandbox.h"
+#include "hexaPawn.h"
 #include <vector>
-#include <map>
 
 using std::cout;
 using std::endl;
