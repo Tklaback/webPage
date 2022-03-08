@@ -10,6 +10,13 @@ using std::cin;
 using std::string;
 using std::vector;
 
+class Victory{
+    friend class Person;
+    friend class Computer;
+    bool compWin = false;
+    bool personWin = false;
+};
+
 class ChessBoard{
     public:
         int numMoves = 1;
@@ -30,8 +37,10 @@ class Player{
 class Person: public Player{
     std::pair<int, int> validMoves[3] = {std::make_pair<int,int>(-1,-1), 
     std::make_pair<int,int>(-1,0), std::make_pair<int,int>(-1,1)};
+    Victory status;
     public:
-        Person(ChessBoard &obj){
+        Person(ChessBoard &obj, Victory &status){
+            this->status = status;
             board = &obj;
             for (unsigned col=0;col< 3;col++){
                 board->arr[2][col] = 1;
@@ -47,6 +56,9 @@ void Person::movePiece(const string &from, const string &to){
     if (validateMove(fromNums, toNums)){
         board->arr[toNums[0]][toNums[1]] = board->arr[fromNums[0]][fromNums[1]];
         board->arr[fromNums[0]][fromNums[1]] = 0;
+        if (toNums[0] == 0){
+            status.personWin = true;
+        }
     }
 }
 
@@ -77,8 +89,10 @@ class Computer: public Player{
     std::pair<int, int> validMoves[3] = {std::make_pair<int,int>(1,-1), 
     std::make_pair<int,int>(1,0), std::make_pair<int,int>(1,1)};
     Pawns og;
+    Victory status;
     public:
-        Computer(ChessBoard &obj){
+        Computer(ChessBoard &obj, Victory &status){
+            this->status = status;
             board = &obj;
             for (unsigned col=0;col< 3;col++){
                 board->arr[0][col] = 2;
@@ -137,11 +151,11 @@ bool Computer::validateMove(const std::pair<int, int> &from, const std::pair<int
     return isValid;
 }
 
-
 int main(){
+    Victory winner;
     ChessBoard myBoard;
-    Person me(myBoard);
-    Computer comp(myBoard);
+    Person me(myBoard, winner);
+    Computer comp(myBoard, winner);
     string from, to;
     print(myBoard.arr);
     cout << "Enter FROM position (i.e. 0 0): ";
@@ -157,9 +171,5 @@ int main(){
         cout << "\nEnter FROM position (i.e. 0 0): ";
         std::getline(cin, from);
     }
-    
-    
-    
-    
 }
 
