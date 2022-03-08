@@ -9,6 +9,12 @@ using std::pair;
 class Pawns{
    public: 
     std::vector<std::pair<int, int> > pawns;
+    void reset(){
+        pawns.clear();
+        pawns.push_back(std::pair<int, int>(0,0));
+        pawns.push_back(std::pair<int, int>(0,1));
+        pawns.push_back(std::pair<int, int>(0,2));
+    }
     Pawns() {
         pawns.push_back(std::pair<int, int>(0,0));
         pawns.push_back(std::pair<int, int>(0,1));

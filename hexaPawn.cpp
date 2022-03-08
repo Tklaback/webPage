@@ -15,12 +15,24 @@ class Victory{
     friend class Computer;
     bool compWin = false;
     bool personWin = false;
+    public:
+        bool isWinner(){
+            if (compWin == true || personWin == true){
+                return true;
+            }
+            return false;
+        }
+        void reset(){
+            compWin = false;
+            personWin = false;
+        }
 };
 
 class ChessBoard{
     public:
         int numMoves = 1;
         int arr[3][3] = {0,0,0,0,0,0,0,0,0};
+        
         
 };
 
@@ -37,14 +49,17 @@ class Player{
 class Person: public Player{
     std::pair<int, int> validMoves[3] = {std::make_pair<int,int>(-1,-1), 
     std::make_pair<int,int>(-1,0), std::make_pair<int,int>(-1,1)};
-    Victory status;
+    Victory *status;
     public:
-        Person(ChessBoard &obj, Victory &status){
-            this->status = status;
-            board = &obj;
+        void setBoard(){
             for (unsigned col=0;col< 3;col++){
                 board->arr[2][col] = 1;
             }
+        }
+        Person(ChessBoard &obj, Victory &status){
+            this->status = &status;
+            board = &obj;
+            setBoard();
         }
         bool validateMove(const vector<int> &from, const vector<int> &to);
         void movePiece(const string &from, const string &to);
@@ -57,7 +72,7 @@ void Person::movePiece(const string &from, const string &to){
         board->arr[toNums[0]][toNums[1]] = board->arr[fromNums[0]][fromNums[1]];
         board->arr[fromNums[0]][fromNums[1]] = 0;
         if (toNums[0] == 0){
-            status.personWin = true;
+            status->personWin = true;
         }
     }
 }
@@ -89,14 +104,19 @@ class Computer: public Player{
     std::pair<int, int> validMoves[3] = {std::make_pair<int,int>(1,-1), 
     std::make_pair<int,int>(1,0), std::make_pair<int,int>(1,1)};
     Pawns og;
-    Victory status;
+    Victory *status;
+    std::vector<Choice> temp;
     public:
-        Computer(ChessBoard &obj, Victory &status){
-            this->status = status;
-            board = &obj;
+        void setBoard(){
+            og.reset();
             for (unsigned col=0;col< 3;col++){
                 board->arr[0][col] = 2;
             }
+        }
+        Computer(ChessBoard &obj, Victory &status){
+            this->status = &status;
+            board = &obj;
+            setBoard();
         }
     bool validateMove(const std::pair<int, int> &from, const std::pair<int, int> &to);
     void movePiece();
@@ -106,17 +126,33 @@ std::vector<Choice> okay;
 std::vector<Choice> failure;
 
 Choice Computer::makeChoice(){
-    // srand(time(NULL));
-    // int myNum = rand() % 3;
-    // return validMoves[myNum];
+    if (!temp.empty()){
+        if (status->personWin == true){
+            cout << "INSERTING" << endl;
+            
+            failure.push_back(temp.back());
+            temp.pop_back();
+            Choice none;
+            return none;
+        }
+        else{
+            okay.push_back(temp.back());
+            temp.pop_back();
+        }
+    }
     for (int pawn=0;pawn<og.pawns.size();pawn++){
         for (int move=0;move<3;move++){ //size of validMoves
-            cout << og.pawns[pawn].first << " " << og.pawns[pawn].second << endl;
+            // cout << og.pawns[pawn].first << " " << og.pawns[pawn].second << endl;
             if (validateMove(og.pawns[pawn], validMoves[move])){
                 Choice choice(og.pawns[pawn], validMoves[move], board->numMoves);
-                og.pawns[pawn].first += validMoves[move].first;
-                og.pawns[pawn].second += validMoves[move].second;
-                return choice;
+                if (search(failure, choice) != true){
+                    cout << "NOT IN FAILURE" << endl;
+                    og.pawns[pawn].first += validMoves[move].first;
+                    og.pawns[pawn].second += validMoves[move].second;
+                    temp.push_back(choice);
+                    return choice;
+                }
+                
             }
         }
     }
@@ -166,6 +202,17 @@ int main(){
         me.movePiece(from, to);
         myBoard.numMoves++;
         comp.movePiece();
+        if (winner.isWinner() == true){
+            string y_n;
+            cout << "Continue? (y/n): " << endl;
+            std::getline(cin, y_n);
+            if (y_n == "y"){
+                me.setBoard();
+                comp.setBoard();
+                winner.reset();
+                main();
+            }
+        }
         myBoard.numMoves++;
         print(myBoard.arr);
         cout << "\nEnter FROM position (i.e. 0 0): ";
