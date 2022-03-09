@@ -39,23 +39,28 @@ class Player{
         // virtual bool validateMove(const vector<int> &from, const vector<int> &to)=0;
         unsigned players;
         ChessBoard *board;
+        std::pair<int, int> validCMoves[3] = {std::make_pair<int,int>(1,-1), 
+        std::make_pair<int,int>(1,0), std::make_pair<int,int>(1,1)};
+        std::pair<int, int> validPMoves[3] = {std::make_pair<int,int>(-1,-1), 
+        std::make_pair<int,int>(-1,0), std::make_pair<int,int>(-1,1)};
         // virtual void movePiece(const string &from, const string &to)=0;
     public:
         Player(): players(3){}
 };
 
 class Person: public Player{
-    std::pair<int, int> validMoves[3] = {std::make_pair<int,int>(-1,-1), 
-    std::make_pair<int,int>(-1,0), std::make_pair<int,int>(-1,1)};
     Victory *status;
-    PersonPawns ogPawns;
+    Pawns *og;
+    PersonPawns *ogPawns;
     public:
         void setBoard(){
             for (unsigned col=0;col< 3;col++){
                 board->arr[2][col] = 1;
             }
         }
-        Person(ChessBoard &obj, Victory &status){
+        Person(ChessBoard &obj, Victory &status, Pawns &og, PersonPawns &ogPawns){
+            this->og = &og;
+            this->ogPawns = &ogPawns;
             this->status = &status;
             board = &obj;
             setBoard();
@@ -65,19 +70,19 @@ class Person: public Player{
 };
 
 void Person::movePiece(const string &from, const string &to){
-    if (!ogPawns.canMove(validMoves, board)){
-        status->compWin = true;
-        return;
-    }
     vector<int> fromNums = parseString(from);
     vector<int> toNums = parseString(to);
     if (validateMove(fromNums, toNums)){
-        ogPawns.changePawn(fromNums, toNums);
+        ogPawns->changePawn(fromNums, toNums);
         board->arr[toNums[0]][toNums[1]] = board->arr[fromNums[0]][fromNums[1]];
         board->arr[fromNums[0]][fromNums[1]] = 0;
         if (toNums[0] == 0){
             status->personWin = true;
         }
+    }
+    if (!og->canMove(validCMoves, board)){
+        status->personWin = true;
+        return;
     }
 }
 
@@ -86,8 +91,8 @@ bool Person::validateMove(const vector<int> &from, const vector<int> &to){
     if (board->arr[from[0]][from[1]] != 1)return isValid;
     int first, second;
     for (unsigned move=0;move<3;move++){
-        first = validMoves[move].first;
-        second = validMoves[move].second;
+        first = validPMoves[move].first;
+        second = validPMoves[move].second;
         if (from[0] + first == to[0] && from[1] + second == to[1]){
             if ((to[0] <= 2 && to[0] >= 0) && (to[1] <= 2 && to[1] >= 0)){
                 if (second != 0){
@@ -105,19 +110,20 @@ bool Person::validateMove(const vector<int> &from, const vector<int> &to){
 
 class Computer: public Player{
     Choice makeChoice();
-    std::pair<int, int> validMoves[3] = {std::make_pair<int,int>(1,-1), 
-    std::make_pair<int,int>(1,0), std::make_pair<int,int>(1,1)};
-    Pawns og;
     Victory *status;
+    Pawns *og;
+    PersonPawns *ogPawns;
     std::vector<Choice> temp;
     public:
         void setBoard(){
-            og.reset();
+            og->reset();
             for (unsigned col=0;col< 3;col++){
                 board->arr[0][col] = 2;
             }
         }
-        Computer(ChessBoard &obj, Victory &status){
+        Computer(ChessBoard &obj, Victory &status, Pawns &og, PersonPawns &ogPawns){
+            this->og = &og;
+            this->ogPawns = &ogPawns;
             this->status = &status;
             board = &obj;
             setBoard();
@@ -138,15 +144,13 @@ Choice Computer::makeChoice(){
             return none;
         }
     }
-    for (int pawn=0;pawn<og.pawns.size();pawn++){
+    for (int pawn=0;pawn<og->pawns.size();pawn++){
         for (int move=0;move<3;move++){ //size of validMoves
-            // cout << og.pawns[pawn].first << " " << og.pawns[pawn].second << endl;
-            if (validateMove(og.pawns[pawn], validMoves[move])){
-                Choice choice(og.pawns[pawn], validMoves[move], board->numMoves);
+            if (validateMove(og->pawns[pawn], validCMoves[move])){
+                Choice choice(og->pawns[pawn], validCMoves[move], board->numMoves);
                 if (search(failure, choice) != true){
-                    cout << "NOT IN FAILURE" << endl;
-                    og.pawns[pawn].first += validMoves[move].first;
-                    og.pawns[pawn].second += validMoves[move].second;
+                    og->pawns[pawn].first += validCMoves[move].first;
+                    og->pawns[pawn].second += validCMoves[move].second;
                     temp.push_back(choice);
                     return choice;
                 }
@@ -158,9 +162,6 @@ Choice Computer::makeChoice(){
 }
 
 void Computer::movePiece(){
-    if (!og.canMove(validMoves, board)){
-        status->personWin = true;
-    }
     Choice fromTo = makeChoice();
     if (fromTo.round != 0){
         std::pair<int, int> current = fromTo.getPosition();
@@ -170,7 +171,10 @@ void Computer::movePiece(){
         board->arr[current.first][current.second] = 0;
         if (current.first + to.first == 2)status->compWin = true;
     }
-    
+    if (!(ogPawns->canMove(validPMoves, board))){
+        status->compWin = true;
+        return;
+    }
 }
 
 bool Computer::validateMove(const std::pair<int, int> &from, const std::pair<int, int> &to){
@@ -192,8 +196,10 @@ bool Computer::validateMove(const std::pair<int, int> &from, const std::pair<int
 int main(){
     Victory winner;
     ChessBoard myBoard;
-    Person me(myBoard, winner);
-    Computer comp(myBoard, winner);
+    Pawns og;
+    PersonPawns ogPawns;
+    Person me(myBoard, winner, og, ogPawns);
+    Computer comp(myBoard, winner, og, ogPawns);
     string from, to;
     print(myBoard.arr);
     cout << "Enter FROM position (i.e. 0 0): ";
@@ -204,6 +210,7 @@ int main(){
         me.movePiece(from, to);
         myBoard.numMoves++;
         comp.movePiece();
+        myBoard.numMoves++;
         if (winner.youWin() == true){
             string y_n;
             cout << "You won! Continue? (y/n): " << endl;
@@ -228,7 +235,6 @@ int main(){
             }
             return 1;
         }
-        myBoard.numMoves++;
         print(myBoard.arr);
         cout << "\nEnter FROM position (i.e. 0 0): ";
         std::getline(cin, from);
