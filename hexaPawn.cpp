@@ -16,8 +16,14 @@ class Victory{
     bool compWin = false;
     bool personWin = false;
     public:
-        bool isWinner(){
-            if (compWin == true || personWin == true){
+        bool youWin(){
+            if (personWin == true){
+                return true;
+            }
+            return false;
+        }
+        bool computerWins(){
+            if (compWin == true){
                 return true;
             }
             return false;
@@ -26,14 +32,6 @@ class Victory{
             compWin = false;
             personWin = false;
         }
-};
-
-class ChessBoard{
-    public:
-        int numMoves = 1;
-        int arr[3][3] = {0,0,0,0,0,0,0,0,0};
-        
-        
 };
 
 class Player{
@@ -50,6 +48,7 @@ class Person: public Player{
     std::pair<int, int> validMoves[3] = {std::make_pair<int,int>(-1,-1), 
     std::make_pair<int,int>(-1,0), std::make_pair<int,int>(-1,1)};
     Victory *status;
+    PersonPawns ogPawns;
     public:
         void setBoard(){
             for (unsigned col=0;col< 3;col++){
@@ -66,9 +65,14 @@ class Person: public Player{
 };
 
 void Person::movePiece(const string &from, const string &to){
+    if (!ogPawns.canMove(validMoves, board)){
+        status->compWin = true;
+        return;
+    }
     vector<int> fromNums = parseString(from);
     vector<int> toNums = parseString(to);
     if (validateMove(fromNums, toNums)){
+        ogPawns.changePawn(fromNums, toNums);
         board->arr[toNums[0]][toNums[1]] = board->arr[fromNums[0]][fromNums[1]];
         board->arr[fromNums[0]][fromNums[1]] = 0;
         if (toNums[0] == 0){
@@ -122,22 +126,16 @@ class Computer: public Player{
     void movePiece();
 };
 
-std::vector<Choice> okay;
 std::vector<Choice> failure;
 
 Choice Computer::makeChoice(){
     if (!temp.empty()){
         if (status->personWin == true){
             cout << "INSERTING" << endl;
-            
             failure.push_back(temp.back());
             temp.pop_back();
             Choice none;
             return none;
-        }
-        else{
-            okay.push_back(temp.back());
-            temp.pop_back();
         }
     }
     for (int pawn=0;pawn<og.pawns.size();pawn++){
@@ -152,7 +150,6 @@ Choice Computer::makeChoice(){
                     temp.push_back(choice);
                     return choice;
                 }
-                
             }
         }
     }
@@ -161,6 +158,9 @@ Choice Computer::makeChoice(){
 }
 
 void Computer::movePiece(){
+    if (!og.canMove(validMoves, board)){
+        status->personWin = true;
+    }
     Choice fromTo = makeChoice();
     if (fromTo.round != 0){
         std::pair<int, int> current = fromTo.getPosition();
@@ -168,7 +168,9 @@ void Computer::movePiece(){
 
         board->arr[current.first + to.first][current.second+to.second] = 2;
         board->arr[current.first][current.second] = 0;
+        if (current.first + to.first == 2)status->compWin = true;
     }
+    
 }
 
 bool Computer::validateMove(const std::pair<int, int> &from, const std::pair<int, int> &to){
@@ -202,9 +204,9 @@ int main(){
         me.movePiece(from, to);
         myBoard.numMoves++;
         comp.movePiece();
-        if (winner.isWinner() == true){
+        if (winner.youWin() == true){
             string y_n;
-            cout << "Continue? (y/n): " << endl;
+            cout << "You won! Continue? (y/n): " << endl;
             std::getline(cin, y_n);
             if (y_n == "y"){
                 me.setBoard();
@@ -212,6 +214,19 @@ int main(){
                 winner.reset();
                 main();
             }
+            return 1;
+        }
+        else if (winner.computerWins() == true){
+            string y_n;
+            cout << "Computer Wins, Continue? (y/n): " << endl;
+            std::getline(cin, y_n);
+            if (y_n == "y"){
+                me.setBoard();
+                comp.setBoard();
+                winner.reset();
+                main();
+            }
+            return 1;
         }
         myBoard.numMoves++;
         print(myBoard.arr);
