@@ -27,10 +27,21 @@ class Pawns{
         reset();
     }
     bool canMove(std::pair<int, int> arr[3], ChessBoard *board);
+    void remove(vector<int> &to);
 };
 
+void Pawns::remove(vector<int> &to){
+    for (int itm=0;itm<pawns.size();itm++){
+        if (pawns[itm].first == to[0] && pawns[itm].second == to[1]){
+            cout << to[0] << " " << to[1] << " just got taken out!" << endl;
+            pawns.erase(std::next(pawns.begin(), itm));
+            return;
+        }
+    }
+}
+
 bool Pawns::canMove(std::pair<int, int> arr[3], ChessBoard *board){
-    for (int pawn=0;pawn<3;pawn++){
+    for (int pawn=0;pawn<pawns.size();pawn++){
         for (int move=0;move<3;move++){
             std::pair<int, int> newTo(pawns[pawn].first + arr[move].first, pawns[pawn].second + arr[move].second);
             if (board->arr[pawns[pawn].first][pawns[pawn].second] == 2){
@@ -48,18 +59,30 @@ bool Pawns::canMove(std::pair<int, int> arr[3], ChessBoard *board){
     return false;
 }
 
+
 class Choice{
     pair<int, int> chosenPosition;
     pair<int, int> whereTo;
+    vector<int> thisBoard;
     public:
         int round;
         Choice() : round(0){}
-        Choice(pair<int, int> choice, pair<int, int> where, int num) : 
-        chosenPosition(choice), whereTo(where), round(num){}
+        Choice(pair<int, int> choice, pair<int, int> where, int arr[3][3], int num) : 
+        chosenPosition(choice), whereTo(where), round(num){
+            for (int r=0;r<3;r++){
+                for (int c=0;c<3;c++){
+                    thisBoard.push_back(arr[r][c]);
+                }
+            }
+        }
         pair<int, int> getPosition(){return chosenPosition;}
         pair<int, int> getTo(){return whereTo;}
         bool operator==(const Choice& other){
-            if (chosenPosition == other.chosenPosition && whereTo == other.whereTo && round == other.round){
+            if (chosenPosition == other.chosenPosition && whereTo == other.whereTo && thisBoard == other.thisBoard && round == other.round){
+                for (int itm=0;itm<thisBoard.size();itm++){
+                    cout << thisBoard[itm] << " ";
+                }
+                cout << endl;
                 return true;
             }
             return false;
@@ -91,7 +114,19 @@ class PersonPawns{
         reset();
     }
     bool canMove(std::pair<int, int> arr[3], ChessBoard *board);
+    void remove(std::pair<int, int> &to);
 };
+
+void PersonPawns::remove(std::pair<int, int> &to){
+    cout << "CALLED" << endl;
+    for (int itm=0;itm<pawns.size();itm++){
+        if (pawns[itm][0] == to.first && pawns[itm][1] == to.second){
+            cout << to.first << " " << to.second << " just got taken out!" << endl;
+            pawns.erase(std::next(pawns.begin(), itm));
+            return;
+        }
+    }
+}
 
 bool PersonPawns::canMove(std::pair<int, int> arr[3], ChessBoard *board){
     for (int pawn=0;pawn<3;pawn++){

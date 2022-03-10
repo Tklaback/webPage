@@ -65,7 +65,7 @@ class Person: public Player{
             board = &obj;
             setBoard();
         }
-        bool validateMove(const vector<int> &from, const vector<int> &to);
+        bool validateMove(const vector<int> &from, vector<int> &to);
         void movePiece(string &from, string &to);
 };
 
@@ -94,7 +94,7 @@ void Person::movePiece(string &from, string &to){
     }
 }
 
-bool Person::validateMove(const vector<int> &from, const vector<int> &to){
+bool Person::validateMove(const vector<int> &from, vector<int> &to){
     bool isValid = false;
     if (board->arr[from[0]][from[1]] != 1)return isValid;
     int first, second;
@@ -104,7 +104,10 @@ bool Person::validateMove(const vector<int> &from, const vector<int> &to){
         if (from[0] + first == to[0] && from[1] + second == to[1]){
             if ((to[0] <= 2 && to[0] >= 0) && (to[1] <= 2 && to[1] >= 0)){
                 if (second != 0){
-                    if (board->arr[to[0]][to[1]] == 2)isValid = true;
+                    if (board->arr[to[0]][to[1]] == 2){
+                        // og->remove(to);
+                        isValid = true;
+                    }
                 }
                 else{
                     if (board->arr[to[0]][to[1]] == 0)isValid = true;
@@ -136,7 +139,7 @@ class Computer: public Player{
             board = &obj;
             setBoard();
         }
-    bool validateMove(const std::pair<int, int> &from, const std::pair<int, int> &to);
+    bool validateMove(const std::pair<int, int> &from, std::pair<int, int> &to);
     void movePiece();
 };
 
@@ -154,7 +157,7 @@ Choice Computer::makeChoice(){
     for (int pawn=0;pawn<og->pawns.size();pawn++){
         for (int move=0;move<3;move++){ //size of validMoves
             if (validateMove(og->pawns[pawn], validCMoves[move])){
-                Choice choice(og->pawns[pawn], validCMoves[move], board->numMoves);
+                Choice choice(og->pawns[pawn], validCMoves[move], board->arr, board->numMoves);
                 if (search(failure, choice) != true){
                     og->pawns[pawn].first += validCMoves[move].first;
                     og->pawns[pawn].second += validCMoves[move].second;
@@ -184,13 +187,16 @@ void Computer::movePiece(){
     }
 }
 
-bool Computer::validateMove(const std::pair<int, int> &from, const std::pair<int, int> &to){
+bool Computer::validateMove(const std::pair<int, int> &from, std::pair<int, int> &to){
     bool isValid = false;
     if (board->arr[from.first][from.second] != 2)return isValid;
     std::pair<int, int> newTo(from.first + to.first, from.second + to.second);
     if ((newTo.first <= 2 && newTo.first >= 0) && (newTo.second <= 2 && newTo.second >= 0)){
         if (to.second != 0){
-            if (board->arr[newTo.first][newTo.second] == 1)isValid = true;
+            if (board->arr[newTo.first][newTo.second] == 1){
+                // ogPawns->remove(newTo);
+                isValid = true;
+            }
         }
         else{
             if (board->arr[newTo.first][newTo.second] == 0)isValid = true;
