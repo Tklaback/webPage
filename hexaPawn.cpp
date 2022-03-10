@@ -66,10 +66,10 @@ class Person: public Player{
             setBoard();
         }
         bool validateMove(const vector<int> &from, const vector<int> &to);
-        void movePiece(const string &from, const string &to);
+        void movePiece(string &from, string &to);
 };
 
-void Person::movePiece(const string &from, const string &to){
+void Person::movePiece(string &from, string &to){
     vector<int> fromNums = parseString(from);
     vector<int> toNums = parseString(to);
     if (validateMove(fromNums, toNums)){
@@ -79,6 +79,14 @@ void Person::movePiece(const string &from, const string &to){
         if (toNums[0] == 0){
             status->personWin = true;
         }
+    }
+    else{
+        cout << "OOPS, try again!" << endl;
+        cout << "Enter FROM position (i.e. 0 0): ";
+        std::getline(cin, from);
+        cout << "\nEnter TO position (i.e. 1 0): ";
+        std::getline(cin, to);
+        movePiece(from, to);
     }
     if (!og->canMove(validCMoves, board)){
         status->personWin = true;
@@ -137,7 +145,6 @@ std::vector<Choice> failure;
 Choice Computer::makeChoice(){
     if (!temp.empty()){
         if (status->personWin == true){
-            cout << "INSERTING" << endl;
             failure.push_back(temp.back());
             temp.pop_back();
             Choice none;
@@ -209,7 +216,11 @@ int main(){
         std::getline(cin, to);
         me.movePiece(from, to);
         myBoard.numMoves++;
+        cout << "\nYOUR MOVE: " << endl;
+        print(myBoard.arr);
         comp.movePiece();
+        cout << "\nComputer's MOVE: " << endl;
+        print(myBoard.arr);
         myBoard.numMoves++;
         if (winner.youWin() == true){
             string y_n;
@@ -235,9 +246,7 @@ int main(){
             }
             return 1;
         }
-        print(myBoard.arr);
         cout << "\nEnter FROM position (i.e. 0 0): ";
         std::getline(cin, from);
     }
 }
-

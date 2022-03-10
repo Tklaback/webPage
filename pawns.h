@@ -12,8 +12,6 @@ class ChessBoard{
     public:
         int numMoves = 1;
         int arr[3][3] = {0,0,0,0,0,0,0,0,0};
-        
-        
 };
 
 class Pawns{
@@ -84,7 +82,6 @@ class PersonPawns{
     void changePawn(const vector<int> &from, const vector<int> &to){
         for (int pawn=0;pawn<3;pawn++){
             if (pawns[pawn][0] == from[0] && pawns[pawn][1] == from[1]){
-                cout << "CHANGING!" << endl;
                 pawns[pawn][0] = to[0];
                 pawns[pawn][1] = to[1];
             }
@@ -102,14 +99,10 @@ bool PersonPawns::canMove(std::pair<int, int> arr[3], ChessBoard *board){
             std::pair<int, int> newTo(pawns[pawn][0] + arr[move].first, pawns[pawn][1] + arr[move].second);
             if (board->arr[pawns[pawn][0]][pawns[pawn][1]] == 1){
                 if ((newTo.first <= 2 && newTo.first >= 0) && (newTo.second <= 2 && newTo.second >= 0)){
-                    cout << newTo.first << newTo.second << endl;;
                     if (arr[move].second != 0){
-                        cout << "here? " << endl;
                         if (board->arr[newTo.first][newTo.second] == 2)return true;
                     }
                     else{
-                        cout << arr[move].first << " " << arr[move].second << endl;
-                        cout << "or here?" << endl;
                         if (board->arr[newTo.first][newTo.second] == 0)return true;
                     }
                 }
