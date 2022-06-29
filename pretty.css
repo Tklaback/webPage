@@ -6,10 +6,10 @@
 }
 
 
-.button{
-    background-color: #d1ddd1;
+
+.human{
+    background-color: black;
     border: none;
-    color: blue;
     padding: 15px 32px;
     text-align: center;
     text-decoration: none;
@@ -18,9 +18,32 @@
     margin: 4px 2px;
     cursor: pointer;
 }
-.button:hover{
-    filter: brightness(.95)
+
+.button{
+    background-color: gray;
+    border: none;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
 }
+
+.computer{
+    background-color: rgb(197, 48, 48);
+    border: none;
+    color: blue;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+}
+/* .human:hover{
+    filter: brightness(.95)
+} */
 div{
     height: 50vh;
     width: 70vw;
