@@ -69,9 +69,9 @@ function validMoveC(chosen, toPos){
 
 function canPawnMove(fromPawnIdx){
     for (idx = 0;idx < compMoves.length; idx++){
-        curMove = [fromPawnIdx[0] + 1, fromPawnIdx[0] + compMoves[idx]]
+        curMove = [fromPawnIdx[0] + 1, fromPawnIdx[1] + compMoves[idx]]
         if (curMove[0] >= 0 && curMove[0] < 3 && curMove[1] < 3 && curMove[1] >=0){
-            btn = chessBoard[curMove[0], curMove[1]]
+            btn = chessBoard[curMove[0]][curMove[1]]
             style = getComputedStyle(btn)
             if (compMoves[idx] === 0){
                 if (style['background-color'] === "rgb(128, 128, 128)"){
