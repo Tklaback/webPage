@@ -24,6 +24,19 @@ function isMyPawn(btn){
     return false;
 }
 
+function boardReset(){
+    compPawns = [[0,0], [0,1], [0,2]]
+    var colors = ["rgb(197, 48, 48)", "rgb(128, 128, 128)", "rgb(0, 0, 0)"]
+    for (var row = 0; row < chessBoard.length;row++){
+        for (var col = 0; col < chessBoard[0].length; col++){
+            chessBoard[row][col].style.backgroundColor = colors[row]
+            if (row === 3){
+                chessBoard[row][col].style.cursor = "pointer";
+            }
+        }
+    }
+}
+
 function getIndexInCompPawns(coords){
     for (num = 0; num < compPawns.length; num++){
         if (coords[0] === compPawns[num][0] && coords[1] === compPawns[num][1]){
@@ -97,6 +110,10 @@ function canPawnMove(fromPawnIdx){
     return false;
 }
 
+function delay(time) {
+    return new Promise(resolve => setTimeout(resolve, time));
+}
+
 function compChange(){
     var number = Math.floor(Math.random() * compPawns.length);
     chosenPawn = compPawns[number];
@@ -123,7 +140,7 @@ function compChange(){
 function change(id)
 {
     pos = [Math.floor(id / 3), id%3];
-    
+
     boardPiece = chessBoard[pos[0]][pos[1]];
     isValid = validMoveH(pos)
     if (from === true && isValid[0]){
@@ -138,6 +155,7 @@ function change(id)
         chessBoard[mostRecent[0]][mostRecent[1]].style.cursor = "default";
         if (!canMoveAtAll())
         {
+            boardReset();
             return;
         }
         compChange();
