@@ -102,12 +102,13 @@ function compChange(){
         where = compMoves[Math.floor(Math.random() * 3)];
         moveTo = [chosenPawn[0]+ 1, chosenPawn[1] + where];
     }
-    compPawns[number] = moveTo;
 
     prevBtn = chessBoard[chosenPawn[0]][chosenPawn[1]]
     curBtn = chessBoard[moveTo[0]][moveTo[1]]
     prevBtn.style.backgroundColor = "rgb(128, 128, 128)";
     curBtn.style.backgroundColor = "rgb(197, 48, 48)";
+    compPawns[number][0] = moveTo[0];
+    compPawns[number][1] = moveTo[1];
 }
 
 function change(id)
