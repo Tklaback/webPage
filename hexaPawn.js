@@ -24,7 +24,7 @@ function isMyPawn(btn){
     return false;
 }
 
-function canMove(){
+function canMoveAtAll(){
     for (num = 0; num<compPawns.length;num++){
         straight = [compPawns[num][0] + 1, compPawns[num][1]]
         right = [compPawns[num][0] + 1, compPawns[num][1] + 1]
@@ -67,9 +67,34 @@ function validMoveC(chosen, toPos){
     return false;
 }
 
+function canPawnMove(fromPawnIdx){
+    for (idx = 0;idx < compMoves.length; idx++){
+        curMove = [fromPawnIdx[0] + 1, fromPawnIdx[0] + compMoves[idx]]
+        if (curMove[0] >= 0 && curMove[0] < 3 && curMove[1] < 3 && curMove[1] >=0){
+            btn = chessBoard[curMove[0], curMove[1]]
+            style = getComputedStyle(btn)
+            if (compMoves[idx] === 0){
+                if (style['background-color'] === "rgb(128, 128, 128)"){
+                    return true;
+                }
+            }
+            else{
+                if (style['background-color'] === "rgb(0, 0, 0)"){
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 function compChange(){
     var number = Math.floor(Math.random() * compPawns.length);
     chosenPawn = compPawns[number];
+    while (!canPawnMove(chosenPawn)){
+        number = Math.floor(Math.random() * compPawns.length);
+        chosenPawn = compPawns[number];
+    }
     var where = compMoves[Math.floor(Math.random() * 3)];
     moveTo = [chosenPawn[0]+ 1, chosenPawn[1] + where]
     while (!validMoveC(chosenPawn, moveTo)){
@@ -101,7 +126,7 @@ function change(id)
         from = false;
         chessBoard[mostRecent[0]][mostRecent[1]].style.backgroundColor = "rgb(128, 128, 128)";
         chessBoard[mostRecent[0]][mostRecent[1]].style.cursor = "default";
-        if (!canMove())
+        if (!canMoveAtAll())
         {
             return;
         }
