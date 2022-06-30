@@ -24,6 +24,15 @@ function isMyPawn(btn){
     return false;
 }
 
+function getIndexInCompPawns(coords){
+    for (num = 0; num < compPawns.length; num++){
+        if (coords[0] === compPawns[num][0] && coords[1] === compPawns[num][1]){
+            return num;
+        }
+    }
+    return -1;
+}
+
 function canMoveAtAll(){
     for (num = 0; num<compPawns.length;num++){
         straight = [compPawns[num][0] + 1, compPawns[num][1]]
@@ -119,8 +128,8 @@ function change(id)
     isValid = validMoveH(pos)
     if (from === true && isValid[0]){
         if (isValid[1]){
-            idx = compPawns.indexOf(pos)
-            compPawns.splice(idx, 1)
+            newIdx = getIndexInCompPawns(pos)
+            compPawns.splice(newIdx, 1)
         }
         boardPiece.style.backgroundColor = "rgb(0, 0, 0)";
         boardPiece.style.cursor = "pointer";
