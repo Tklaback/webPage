@@ -2,6 +2,7 @@ var from = false;
 chessBoard = [];
 var mostRecent;
 compPawns = [[0,0], [0,1], [0,2]]
+humanPawns = [[2,0],[2,1],[2,2]]
 compMoves = [-1, 0, 1]
 rows = 3
 cols = 3
@@ -25,6 +26,7 @@ function isMyPawn(btn){
 }
 
 function boardReset(){
+    humanPawns = [[2,0],[2,1],[2,2]]
     compPawns = [[0,0], [0,1], [0,2]]
     var colors = ["rgb(197, 48, 48)", "rgb(128, 128, 128)", "rgb(0, 0, 0)"]
     for (var row = 0; row < chessBoard.length;row++){
@@ -37,25 +39,45 @@ function boardReset(){
     }
 }
 
-function getIndexInCompPawns(coords){
-    for (num = 0; num < compPawns.length; num++){
-        if (coords[0] === compPawns[num][0] && coords[1] === compPawns[num][1]){
+function getIndex(coords, comp){
+    if (comp){
+        var arr = compPawns;
+    }
+    else{
+        var arr = humanPawns;
+    }
+    for (num = 0; num < arr.length; num++){
+        if (coords[0] === arr[num][0] && coords[1] === arr[num][1]){
             return num;
         }
     }
     return -1;
 }
 
-function canMoveAtAll(){
-    for (num = 0; num<compPawns.length;num++){
-        straight = [compPawns[num][0] + 1, compPawns[num][1]]
-        right = [compPawns[num][0] + 1, compPawns[num][1] + 1]
-        left = [compPawns[num][0] + 1, compPawns[num][1] - 1]
-        if (validMoveC(compPawns[num], straight) || validMoveC(compPawns[num], right) || validMoveC(compPawns[num], left)){
-            return true;
+function canMoveAtAll(comp){
+    if (comp === true){
+        for (num = 0; num<compPawns.length;num++){
+            straight = [compPawns[num][0] + 1, compPawns[num][1]]
+            right = [compPawns[num][0] + 1, compPawns[num][1] + 1]
+            left = [compPawns[num][0] + 1, compPawns[num][1] - 1]
+            if (validMoveC(compPawns[num], straight)[0] || validMoveC(compPawns[num], right)[0] || validMoveC(compPawns[num], left)[0]){
+                return true;
+            }
         }
+        return false;
     }
-    return false;
+    // else{
+    //     for (num = 0; num<compPawns.length;num++){
+    //         straight = [compPawns[num][0] + 1, compPawns[num][1]]
+    //         right = [compPawns[num][0] + 1, compPawns[num][1] + 1]
+    //         left = [compPawns[num][0] + 1, compPawns[num][1] - 1]
+    //         if (validMoveH(compPawns[num], straight) || validMoveC(compPawns[num], right) || validMoveC(compPawns[num], left)){
+    //             return true;
+    //         }
+    //     }
+    //     return false;
+    // }
+    
 }
 
 
@@ -80,13 +102,13 @@ function validMoveC(chosen, toPos){
         style = getComputedStyle(btn);
         
         if (style['background-color'] === "rgb(128, 128, 128)" && toPos[1] === chosen[1]){
-            return true;
+            return [true, 0];
         }
         else if ((style['background-color'] === "rgb(0, 0, 0)" && (toPos[1] === chosen[1]+1 || toPos[1] === chosen[1]-1))){
-            return true;
+            return [true, 1];
         }
     }
-    return false;
+    return [false, 0];
 }
 
 function canPawnMove(fromPawnIdx){
@@ -110,10 +132,6 @@ function canPawnMove(fromPawnIdx){
     return false;
 }
 
-function delay(time) {
-    return new Promise(resolve => setTimeout(resolve, time));
-}
-
 function compChange(){
     var number = Math.floor(Math.random() * compPawns.length);
     chosenPawn = compPawns[number];
@@ -123,12 +141,17 @@ function compChange(){
     }
     var where = compMoves[Math.floor(Math.random() * 3)];
     moveTo = [chosenPawn[0]+ 1, chosenPawn[1] + where]
-    while (!validMoveC(chosenPawn, moveTo)){
+    var compChoice = validMoveC(chosenPawn, moveTo)
+    while (!compChoice[0]){
         console.log("HELLO")
         where = compMoves[Math.floor(Math.random() * 3)];
         moveTo = [chosenPawn[0]+ 1, chosenPawn[1] + where];
+        compChoice = validMoveC(chosenPawn, moveTo)
     }
-
+    if (compChoice[1]){
+        newIdx = getIndex(moveTo, false)
+        humanPawns.splice(newIdx, 1)
+    }
     prevBtn = chessBoard[chosenPawn[0]][chosenPawn[1]]
     curBtn = chessBoard[moveTo[0]][moveTo[1]]
     prevBtn.style.backgroundColor = "rgb(128, 128, 128)";
@@ -145,15 +168,20 @@ function change(id)
     isValid = validMoveH(pos)
     if (from === true && isValid[0]){
         if (isValid[1]){
-            newIdx = getIndexInCompPawns(pos)
+            newIdx = getIndex(pos, true)
             compPawns.splice(newIdx, 1)
         }
+        var pawnIdx = getIndex(mostRecent, false)
+        humanPawns[pawnIdx][0] = pos[0]
+        humanPawns[pawnIdx][1] = pos[1]
+
         boardPiece.style.backgroundColor = "rgb(0, 0, 0)";
         boardPiece.style.cursor = "pointer";
         from = false;
         chessBoard[mostRecent[0]][mostRecent[1]].style.backgroundColor = "rgb(128, 128, 128)";
         chessBoard[mostRecent[0]][mostRecent[1]].style.cursor = "default";
-        if (!canMoveAtAll())
+        
+        if (!canMoveAtAll(true))
         {
             boardReset();
             return;
