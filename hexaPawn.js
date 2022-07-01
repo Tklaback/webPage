@@ -7,6 +7,8 @@ compMoves = [-1, 0, 1]
 rows = 3
 cols = 3
 btns = ["b1", "b2", "b3", "b4", "b5","b6", "b7", "b8", "b9"];
+CompWins = 0;
+HumanWins = 0;
 
 cnt = 0;
 for (var row=0;row<rows;row++){
@@ -66,30 +68,31 @@ function canMoveAtAll(comp){
         }
         return false;
     }
-    // else{
-    //     for (num = 0; num<compPawns.length;num++){
-    //         straight = [compPawns[num][0] + 1, compPawns[num][1]]
-    //         right = [compPawns[num][0] + 1, compPawns[num][1] + 1]
-    //         left = [compPawns[num][0] + 1, compPawns[num][1] - 1]
-    //         if (validMoveH(compPawns[num], straight) || validMoveC(compPawns[num], right) || validMoveC(compPawns[num], left)){
-    //             return true;
-    //         }
-    //     }
-    //     return false;
-    // }
+    else{
+        for (num = 0; num<humanPawns.length;num++){
+            straight = [humanPawns[num][0] - 1, humanPawns[num][1]]
+            right = [humanPawns[num][0] - 1 , humanPawns[num][1] + 1]
+            left = [humanPawns[num][0] - 1, humanPawns[num][1] - 1]
+            if (validMoveH(humanPawns[num], straight)[0] || validMoveH(humanPawns[num], right)[0] || validMoveH(humanPawns[num], left)[0]){
+                return true;
+            }
+        }
+        return false;
+    }
     
 }
 
 
-function validMoveH(toPos){
-    btn = chessBoard[toPos[0]][toPos[1]];
-    console.log(btn);
-    var style = getComputedStyle(btn);
-    if (style['background-color'] === "rgb(128, 128, 128)" && toPos[0] === mostRecent[0]-1 && toPos[1] === mostRecent[1]){
-        return [true, 0];
-    }
-    else if ((style['background-color'] === "rgb(197, 48, 48)" && toPos[0] === mostRecent[0]-1 && (toPos[1] === mostRecent[1]+1 || toPos[1] === mostRecent[1]-1))){
-        return [true, 1];
+function validMoveH(from, toPos){
+    if (toPos[0] >= 0 && toPos[0] < 3 && toPos[1] < 3 && toPos[1] >=0){
+        btn = chessBoard[toPos[0]][toPos[1]];
+        var style = getComputedStyle(btn);
+        if (style['background-color'] === "rgb(128, 128, 128)" && toPos[0] === from[0]-1 && toPos[1] === from[1]){
+            return [true, 0];
+        }
+        else if ((style['background-color'] === "rgb(197, 48, 48)" && toPos[0] === from[0]-1 && (toPos[1] === from[1]+1 || toPos[1] === from[1]-1))){
+            return [true, 1];
+        }
     }
     return [false, -1];
 }
@@ -158,6 +161,12 @@ function compChange(){
     curBtn.style.backgroundColor = "rgb(197, 48, 48)";
     compPawns[number][0] = moveTo[0];
     compPawns[number][1] = moveTo[1];
+    
+    if (!canMoveAtAll(false))
+    {
+        boardReset();
+        return;
+    }
 }
 
 function change(id)
@@ -165,7 +174,7 @@ function change(id)
     pos = [Math.floor(id / 3), id%3];
 
     boardPiece = chessBoard[pos[0]][pos[1]];
-    isValid = validMoveH(pos)
+    isValid = validMoveH(mostRecent, pos)
     if (from === true && isValid[0]){
         if (isValid[1]){
             newIdx = getIndex(pos, true)
@@ -181,6 +190,7 @@ function change(id)
         chessBoard[mostRecent[0]][mostRecent[1]].style.backgroundColor = "rgb(128, 128, 128)";
         chessBoard[mostRecent[0]][mostRecent[1]].style.cursor = "default";
         
+
         if (!canMoveAtAll(true))
         {
             boardReset();
