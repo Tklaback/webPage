@@ -116,6 +116,19 @@ function validMoveC(chosen, toPos){
     return [false, 0];
 }
 
+function oppositeReached(isComp, moveTo)
+{
+    if (isComp)
+    {
+        if (moveTo[0] == 2)
+            return true;
+        return false; 
+    }
+    if (moveTo[0] == 0)
+        return true;
+    return false;
+}
+
 function canPawnMove(fromPawnIdx){
     for (idx = 0;idx < compMoves.length; idx++){
         curMove = [fromPawnIdx[0] + 1, fromPawnIdx[1] + compMoves[idx]]
@@ -165,9 +178,15 @@ function compChange(){
     
     if (!canMoveAtAll(false))
     {
-        boardReset();
+        // boardReset();
         compWon = true;
         console.log("COMPUTER WON!");
+        return;
+    }
+    else if (oppositeReached(true, moveTo))
+    {
+        // boardReset();
+        console.log("COMPUTER WON BY MAKING IT TO OTHER SIDE!");
         return;
     }
 }
@@ -196,9 +215,15 @@ function change(id)
 
         if (!canMoveAtAll(true))
         {
-            boardReset();
+            // boardReset();
             humanWon = true;
             console.log("HUMAN WON!");
+            return;
+        }
+        else if (oppositeReached(false, pos))
+        {
+            // boardReset();
+            console.log("HUMAN WON BY MAKING TO THE OTHER SIDE");
             return;
         }
         compChange();
@@ -209,7 +234,6 @@ function change(id)
     }
     if (compWon)
     {
-        
         compWon = false;
     }
         
