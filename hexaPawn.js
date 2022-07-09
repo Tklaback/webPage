@@ -9,6 +9,8 @@ cols = 3
 btns = ["b1", "b2", "b3", "b4", "b5","b6", "b7", "b8", "b9"];
 CompWins = 0;
 HumanWins = 0;
+var compWon = false;
+var humanWon = false;
 
 cnt = 0;
 for (var row=0;row<rows;row++){
@@ -146,7 +148,6 @@ function compChange(){
     moveTo = [chosenPawn[0]+ 1, chosenPawn[1] + where]
     var compChoice = validMoveC(chosenPawn, moveTo)
     while (!compChoice[0]){
-        console.log("HELLO")
         where = compMoves[Math.floor(Math.random() * 3)];
         moveTo = [chosenPawn[0]+ 1, chosenPawn[1] + where];
         compChoice = validMoveC(chosenPawn, moveTo)
@@ -165,6 +166,8 @@ function compChange(){
     if (!canMoveAtAll(false))
     {
         boardReset();
+        compWon = true;
+        console.log("COMPUTER WON!");
         return;
     }
 }
@@ -194,9 +197,21 @@ function change(id)
         if (!canMoveAtAll(true))
         {
             boardReset();
+            humanWon = true;
+            console.log("HUMAN WON!");
             return;
         }
         compChange();
+
+    if (humanWon)
+    {
+        humanWon = false;
+    }
+    if (compWon)
+    {
+        
+        compWon = false;
+    }
         
     }
     else{
@@ -205,4 +220,6 @@ function change(id)
             mostRecent = pos;
         }
     }
+
+    
 }
