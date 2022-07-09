@@ -129,6 +129,16 @@ function oppositeReached(isComp, moveTo)
     return false;
 }
 
+function playAgain()
+{
+    if (humanWon || compWon)
+    {
+        boardReset();
+        humanWon = false;
+        compWon = false;
+    }
+}
+
 function canPawnMove(fromPawnIdx){
     for (idx = 0;idx < compMoves.length; idx++){
         curMove = [fromPawnIdx[0] + 1, fromPawnIdx[1] + compMoves[idx]]
@@ -185,11 +195,13 @@ function compChange(){
     }
     else if (oppositeReached(true, moveTo))
     {
+        compWon = true;
         // boardReset();
         console.log("COMPUTER WON BY MAKING IT TO OTHER SIDE!");
         return;
     }
 }
+
 
 function change(id)
 {
@@ -223,19 +235,20 @@ function change(id)
         else if (oppositeReached(false, pos))
         {
             // boardReset();
+            humanWon = true;
             console.log("HUMAN WON BY MAKING TO THE OTHER SIDE");
             return;
         }
         compChange();
 
-    if (humanWon)
-    {
-        humanWon = false;
-    }
-    if (compWon)
-    {
-        compWon = false;
-    }
+    // if (humanWon)
+    // {
+    //     humanWon = false;
+    // }
+    // if (compWon)
+    // {
+    //     compWon = false;
+    // }
         
     }
     else{
