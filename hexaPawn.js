@@ -1,3 +1,40 @@
+class screenShot{
+    setBoard(board){
+        this.cBoard = []
+        var piece;
+        for (var row = 0; row < board.length; row++){
+            temp = []
+            for (var col = 0; col < board[0].length;col++){
+                piece = board[row][col];
+                temp.push(piece.style.backgroundColor)
+            }
+            this.cBoard.push(temp)
+        }
+    }
+    setFromPos(fromPos){
+        this.fromPos = fromPos;
+    }
+    setToPos(toPos){
+        this.toPos = toPos;
+    }
+    cpy(other){
+        other.cBoard = this.cBoard;
+        other.fromPos = this.fromPos;
+        other.toPos = this.toPos;
+    }
+    reset(){
+        this.cBoard = [];
+        this.fromPos = [0,0];
+        this.toPos = [0,0];
+    }
+    equals(other){
+        if (other.cBoard === this.cBoard && other.fromPos === this.fromPos && other.toPos === this.toPos){
+            return true;
+        }
+        return false;
+    }
+}
+
 var from = false;
 chessBoard = [];
 var mostRecent;
@@ -11,11 +48,22 @@ CompWins = 0;
 HumanWins = 0;
 var compWon = false;
 var humanWon = false;
+newScreenShot = new screenShot();
+failures = [];
 
 cnt = 0;
 for (var row=0;row<rows;row++){
     temp = []
     for (var col=0;col<cols;col++){
+        if (row == 0){
+            document.getElementById(btns[cnt]).style.backgroundColor = "rgb(197, 48, 48)";
+        }
+        else if (row == 1){
+            document.getElementById(btns[cnt]).style.backgroundColor = "rgb(128, 128, 128)";
+        }
+        else{
+            document.getElementById(btns[cnt]).style.backgroundColor = "rgb(0, 0, 0)";
+        }
         temp.push(document.getElementById(btns[cnt++]));
     }
     chessBoard.push(temp);
@@ -179,6 +227,8 @@ function compChange(){
         newIdx = getIndex(moveTo, false)
         humanPawns.splice(newIdx, 1)
     }
+    newScreenShot.setFromPos(chosenPawn);
+    newScreenShot.setToPos(moveTo);
     prevBtn = chessBoard[chosenPawn[0]][chosenPawn[1]]
     curBtn = chessBoard[moveTo[0]][moveTo[1]]
     prevBtn.style.backgroundColor = "rgb(128, 128, 128)";
@@ -229,6 +279,10 @@ function change(id)
         {
             // boardReset();
             humanWon = true;
+            let copy = new screenShot();
+            newScreenShot.cpy(copy);
+            failures.push(copy);
+            newScreenShot.reset();
             console.log("HUMAN WON!");
             return;
         }
@@ -236,9 +290,15 @@ function change(id)
         {
             // boardReset();
             humanWon = true;
+            let copy = new screenShot();
+            newScreenShot.cpy(copy);
+            failures.push(copy);
+            newScreenShot.reset();
             console.log("HUMAN WON BY MAKING TO THE OTHER SIDE");
             return;
         }
+
+        newScreenShot.setBoard(chessBoard);
         compChange();
 
     // if (humanWon)
