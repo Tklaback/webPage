@@ -1,3 +1,5 @@
+rows = 3
+cols = 3
 class screenShot{
     setBoard(board){
         this.cBoard = []
@@ -28,10 +30,20 @@ class screenShot{
         this.toPos = [0,0];
     }
     equals(other){
-        if (other.cBoard === this.cBoard && other.fromPos === this.fromPos && other.toPos === this.toPos){
-            return true;
+        for (let iteration = 0; iteration < rows; iteration++){
+            for (let colItr = 0; colItr < cols; colItr++)
+            {
+                if (other.cBoard[iteration][colItr] != this.cBoard[iteration][colItr]){
+                    return false;
+                }
+            }
         }
-        return false;
+        for (let itr = 0; itr < other.fromPos.length; itr++){
+            if (other.fromPos[itr] !== this.fromPos[itr] || other.toPos[itr] !== this.toPos[itr]){
+                return false;
+            }
+        }
+        return true;
     }
 }
 
@@ -41,8 +53,6 @@ var mostRecent;
 compPawns = [[0,0], [0,1], [0,2]]
 humanPawns = [[2,0],[2,1],[2,2]]
 compMoves = [-1, 0, 1]
-rows = 3
-cols = 3
 btns = ["b1", "b2", "b3", "b4", "b5","b6", "b7", "b8", "b9"];
 CompWins = 0;
 HumanWins = 0;
@@ -67,6 +77,15 @@ for (var row=0;row<rows;row++){
         temp.push(document.getElementById(btns[cnt++]));
     }
     chessBoard.push(temp);
+}
+
+function inFailures(){
+    for (let num = 0; num < failures.length; num++){
+        if (newScreenShot.equals(failures[num])){
+            return true;
+        }
+    }
+    return false;
 }
 
 function isMyPawn(btn){
@@ -209,6 +228,7 @@ function canPawnMove(fromPawnIdx){
 }
 
 function compChange(){
+    newScreenShot.setBoard(chessBoard);
     var number = Math.floor(Math.random() * compPawns.length);
     chosenPawn = compPawns[number];
     while (!canPawnMove(chosenPawn)){
@@ -227,8 +247,11 @@ function compChange(){
         newIdx = getIndex(moveTo, false)
         humanPawns.splice(newIdx, 1)
     }
-    newScreenShot.setFromPos(chosenPawn);
-    newScreenShot.setToPos(moveTo);
+    newScreenShot.setFromPos(chosenPawn.slice(0));
+    newScreenShot.setToPos(moveTo.slice(0));
+    if (inFailures()){
+        compChange();
+    }
     prevBtn = chessBoard[chosenPawn[0]][chosenPawn[1]]
     curBtn = chessBoard[moveTo[0]][moveTo[1]]
     prevBtn.style.backgroundColor = "rgb(128, 128, 128)";
@@ -267,7 +290,6 @@ function change(id)
         var pawnIdx = getIndex(mostRecent, false)
         humanPawns[pawnIdx][0] = pos[0]
         humanPawns[pawnIdx][1] = pos[1]
-
         boardPiece.style.backgroundColor = "rgb(0, 0, 0)";
         boardPiece.style.cursor = "pointer";
         from = false;
@@ -298,7 +320,6 @@ function change(id)
             return;
         }
 
-        newScreenShot.setBoard(chessBoard);
         compChange();
 
     // if (humanWon)
