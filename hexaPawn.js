@@ -50,8 +50,8 @@ class screenShot{
 var from = false;
 chessBoard = [];
 var mostRecent;
-compPawns = [[0,0], [0,1], [0,2]]
-humanPawns = [[2,0],[2,1],[2,2]]
+var compPawns = [[0,0], [0,1], [0,2]]
+var humanPawns = [[2,0],[2,1],[2,2]]
 compMoves = [-1, 0, 1]
 btns = ["b1", "b2", "b3", "b4", "b5","b6", "b7", "b8", "b9"];
 CompWins = 0;
@@ -251,6 +251,7 @@ function compChange(){
     newScreenShot.setToPos(moveTo.slice(0));
     if (inFailures()){
         compChange();
+        return;
     }
     prevBtn = chessBoard[chosenPawn[0]][chosenPawn[1]]
     curBtn = chessBoard[moveTo[0]][moveTo[1]]
