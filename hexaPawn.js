@@ -56,6 +56,8 @@ compMoves = [-1, 0, 1]
 btns = ["b1", "b2", "b3", "b4", "b5","b6", "b7", "b8", "b9"];
 CompWins = 0;
 HumanWins = 0;
+document.getElementById("hw").innerHTML = HumanWins;
+document.getElementById("cw").innerHTML = CompWins;
 var compWon = false;
 var humanWon = false;
 newScreenShot = new screenShot();
@@ -235,7 +237,7 @@ function compChange(){
         number = Math.floor(Math.random() * compPawns.length);
         chosenPawn = compPawns[number];
     }
-    var where = compMoves[Math.floor(Math.random() * 3)];
+    let where = compMoves[Math.floor(Math.random() * 3)];
     moveTo = [chosenPawn[0]+ 1, chosenPawn[1] + where]
     var compChoice = validMoveC(chosenPawn, moveTo)
     while (!compChoice[0]){
@@ -243,15 +245,15 @@ function compChange(){
         moveTo = [chosenPawn[0]+ 1, chosenPawn[1] + where];
         compChoice = validMoveC(chosenPawn, moveTo)
     }
-    if (compChoice[1]){
-        newIdx = getIndex(moveTo, false)
-        humanPawns.splice(newIdx, 1)
-    }
     newScreenShot.setFromPos(chosenPawn.slice(0));
     newScreenShot.setToPos(moveTo.slice(0));
     if (inFailures()){
         compChange();
         return;
+    }
+    if (compChoice[1]){
+        newIdx = getIndex(moveTo, false)
+        humanPawns.splice(newIdx, 1)
     }
     prevBtn = chessBoard[chosenPawn[0]][chosenPawn[1]]
     curBtn = chessBoard[moveTo[0]][moveTo[1]]
@@ -262,15 +264,21 @@ function compChange(){
     
     if (!canMoveAtAll(false))
     {
-        // boardReset();
+        window.alert("COMPUTER WON, RESETTING BOARD");
+        boardReset(); 
+        CompWins++;
+        updateWins();
         compWon = true;
         console.log("COMPUTER WON!");
         return;
     }
     else if (oppositeReached(true, moveTo))
     {
+        window.alert("COMPUTER WON, RESETTING BOARD");
+        boardReset();
+        CompWins++;
+        updateWins();
         compWon = true;
-        // boardReset();
         console.log("COMPUTER WON BY MAKING IT TO OTHER SIDE!");
         return;
     }
@@ -287,7 +295,7 @@ function change(id)
         if (isValid[1]){
             newIdx = getIndex(pos, true)
             compPawns.splice(newIdx, 1)
-        }
+        } 
         var pawnIdx = getIndex(mostRecent, false)
         humanPawns[pawnIdx][0] = pos[0]
         humanPawns[pawnIdx][1] = pos[1]
@@ -300,38 +308,34 @@ function change(id)
 
         if (!canMoveAtAll(true))
         {
-            // boardReset();
+            window.alert("HUMAN WON, RESETTING BOARD");
+            boardReset();
             humanWon = true;
             let copy = new screenShot();
-            newScreenShot.cpy(copy);
+            newScreenShot.cpy(copy); 
             failures.push(copy);
+            HumanWins++;
+            updateWins();
             newScreenShot.reset();
             console.log("HUMAN WON!");
             return;
         }
         else if (oppositeReached(false, pos))
         {
-            // boardReset();
+            window.alert("HUMAN WON, RESETING BOARD");
+            boardReset();
             humanWon = true;
             let copy = new screenShot();
             newScreenShot.cpy(copy);
             failures.push(copy);
+            HumanWins++;
+            updateWins();
             newScreenShot.reset();
             console.log("HUMAN WON BY MAKING TO THE OTHER SIDE");
             return;
         }
 
         compChange();
-
-    // if (humanWon)
-    // {
-    //     humanWon = false;
-    // }
-    // if (compWon)
-    // {
-    //     compWon = false;
-    // }
-        
     }
     else{
         if (isMyPawn(boardPiece)){
@@ -339,6 +343,11 @@ function change(id)
             mostRecent = pos;
         }
     }
-
     
+    
+}
+
+function updateWins(){
+    document.getElementById("hw").innerHTML = HumanWins;
+    document.getElementById("cw").innerHTML = CompWins;
 }
